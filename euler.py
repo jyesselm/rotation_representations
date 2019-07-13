@@ -1,4 +1,4 @@
-lerimport numpy as np
+import numpy as np
 import pandas as pd
 import math
 import rnamake.transformations as t
@@ -22,6 +22,39 @@ def rotation_matrix_to_euler_angles(R):
     return np.array([x, y, z])
 
 
+def euler_flip(e):
+    new_e = np.array(e)
+    for i in range(3):
+        if e[i] > 0:
+            new_e[i] -= math.pi
+        else:
+            new_e[i] += math.pi
+
+    new_e[1] = -new_e[1]
+    return new_e
+
+def euler_sum(e):
+    sum = abs(e[0]) + abs(e[1]) + abs(e[2])
+    return sum
+
+def norm_euler_angles(e):
+    new_e = np.array(e)
+    new_e_2 = euler_flip(new_e)
+    sum_e = euler_sum(new_e)
+    sum_e_2 = euler_sum(new_e_2)
+    #print new_e, new_e_2
+    if sum_e_2 < sum_e:
+        new_e = new_e_2
+    if new_e[0] < 0:
+        new_e = -new_e
+    return new_e
+
+def rotation_matrix_to_norm_euler_angles(R):
+    e_angles = rotation_matrix_to_euler_angles(R)
+    return norm_euler_angles(e_angles)
+
+
+
 def euler_angles_to_rotation_matrix(theta):
     R_x = np.array([[1, 0, 0],
                     [0, math.cos(theta[0]), -math.sin(theta[0])],
@@ -39,14 +72,9 @@ def euler_angles_to_rotation_matrix(theta):
                     ])
 
     R = np.dot(R_z, np.dot(R_y, R_x))
-
     return R
 
-print
-
-exit()
-
-for i in range(100):
+"""for i in range(100):
     r = t.random_rotation_matrix()[:3, :3]
     euler = rotationMatrixToEulerAngles(r)
     r_new = eulerAnglesToRotationMatrix(euler)
@@ -71,5 +99,4 @@ euler = rotationMatrixToEulerAngles(R)
 R_new = eulerAnglesToRotationMatrix(euler)
 
 print R
-print euler
-print R_new
+print euler"""
